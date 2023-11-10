@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+.canvasContainer {
+  position: relative;
+  left: 200px;
+  top: 30px;
+  display: inline-block;
+  border: 2px solid red;
+}
+.selectorBorder {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  left: -2px;
+  top: -2px;
+  border: 2px dashed orange;
+}
+.selector {
+  position: absolute;
+  background-color: transparent;
+  cursor: move;
+}
+.selector .handle {
+  background-color: white;
+  width: 10px;
+  height: 10px;
+  border: 1px solid black;
+  cursor: move;
+}
+.selector .topLeft {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  cursor: nwse-resize;
+}
+.selector .bottomRight {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
