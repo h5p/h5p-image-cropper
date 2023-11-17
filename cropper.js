@@ -111,31 +111,33 @@ function Cropper(options) {
     }
     this.handles[type].onpointerdown = onPointerDown;
   }
-  this.scale = (image) => {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.fit = (image, canvas) => {
+    if (!canvas) {
+      canvas = this.canvas;
+    }
     let width;
     let height;
     if (image.width >= image.height) {
-      width = image.width > this.canvas.width ? this.canvas.width : image.width;
+      width = canvas.width;
       height = image.height / image.width * width;
-      if (height > this.canvas.height) {
-        height = this.canvas.height;
+      if (height > canvas.height) {
+        height = canvas.height;
         width = image.width / image.height * height;
       }
     }
     else {
-      height = image.height > this.canvas.height ? this.canvas.height : image.height;
+      height = canvas.height;
       width = image.width / image.height * height;
-      if (width > this.canvas.width) {
-        width = this.canvas.width;
+      if (width > canvas.width) {
+        width = canvas.width;
         height = image.height / image.width * width;
       }
     }
-    return {width, height};
+    return { width, height };
   }
   this.loadImage = () => {
     console.log('image loaded');
-    const { width, height } = this.scale(this.image);
+    const { width, height } = this.fit(this.image);
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
     this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
@@ -175,7 +177,7 @@ function Cropper(options) {
     let sy = ICRatio * selectedY;
     let sw = ICRatio * selectedWidth;
     let sh = ICRatio * selectedHeight;
-    const { width, height } = this.scale({ width: sw, height: sh });
+    const { width, height } = this.fit({ width: sw, height: sh });
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -187,14 +189,19 @@ function Cropper(options) {
     this.image.src = this.mirror.toDataURL('image/png', 1);
     this.resetSelector();
   }
+  this.rotation = 0;
   this.rotate = (rotation) => {
-    let width = this.canvas.width - this.margins.left * 2;
-    let height = this.canvas.height - this.margins.top * 2;
+    this.rotation = (this.rotation + rotation) % 4;
+    let { width, height } = this.fit(this.image, this.rotation % 2 ? {
+      width: this.canvas.height,
+      height: this.canvas.width
+    } : null);
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
+    this.context.reset();
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.translate(this.canvas.width / 2, cropper.canvas.height / 2);
-    this.context.rotate(90 * rotation * Math.PI / 180);
+    this.context.rotate(90 * this.rotation * Math.PI / 180);
     this.context.translate(-this.canvas.width / 2, -cropper.canvas.height / 2);
     this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
   }
@@ -205,6 +212,8 @@ function Cropper(options) {
     this.selector.style.top = this.canvas.offsetTop + this.canvas.height / 4;
   }
   this.reset = () => {
+    this.rotation = 0;
+    this.context.reset();
     this.image.onload = this.loadImage;
     this.image.src = options.canvas.image;
   }
