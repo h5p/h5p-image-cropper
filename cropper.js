@@ -136,7 +136,6 @@ function Cropper(options) {
     return { width, height };
   }
   this.loadImage = () => {
-    console.log('image loaded');
     const { width, height } = this.fit(this.image);
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
@@ -167,11 +166,11 @@ function Cropper(options) {
       selectedHeight += selectedY;
       selectedY = 0;
     }
-    if (selectedWidth > maxSelectedWidth) {
-      selectedWidth = maxSelectedWidth;
+    if (selectedX + selectedWidth > maxSelectedWidth) {
+      selectedWidth = maxSelectedWidth - selectedX;
     }
-    if (selectedHeight > maxSelectedHeight) {
-      selectedHeight = maxSelectedHeight;
+    if (selectedY + selectedHeight > maxSelectedHeight) {
+      selectedHeight = maxSelectedHeight - selectedY;
     }
     const ICRatio = this.image.width / (this.canvas.width - this.margins.left * 2);
     let sx = ICRatio * selectedX;
