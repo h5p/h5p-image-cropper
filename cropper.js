@@ -140,6 +140,7 @@ function Cropper(options) {
     const { width, height } = this.fit(this.image);
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
     this.resetSelector();
     this.image.onload = undefined;
@@ -162,12 +163,12 @@ function Cropper(options) {
       selectedWidth += selectedX;
       selectedX = 0;
     }
-    if (selectedWidth > maxSelectedWidth) {
-      selectedWidth = maxSelectedWidth;
-    }
     if (selectedY < 0) {
       selectedHeight += selectedY;
       selectedY = 0;
+    }
+    if (selectedWidth > maxSelectedWidth) {
+      selectedWidth = maxSelectedWidth;
     }
     if (selectedHeight > maxSelectedHeight) {
       selectedHeight = maxSelectedHeight;
@@ -178,32 +179,34 @@ function Cropper(options) {
     let sw = ICRatio * selectedWidth;
     let sh = ICRatio * selectedHeight;
     const { width, height } = this.fit({ width: sw, height: sh });
-    this.margins.left = (this.canvas.width - width) / 2;
-    this.margins.top = (this.canvas.height - height) / 2;
+    const marginLeft = (this.canvas.width - width) / 2;
+    const marginTop = (this.canvas.height - height) / 2;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.drawImage(this.image, sx, sy, sw, sh, this.margins.left, this.margins.top, width, height);
+    this.context.drawImage(this.image, sx, sy, sw, sh, marginLeft, marginTop, width, height);
     this.mirror.width = width;
     this.mirror.height = height;
     this.mirrorContext.drawImage(this.image, sx, sy, sw, sh, 0, 0, width, height);
     this.image = new Image();
     this.image.src = this.mirror.toDataURL('image/png', 1);
-    this.resetSelector();
+    this.image.onload = this.loadImage;
   }
-  this.rotation = 0;
   this.rotate = (rotation) => {
-    this.rotation = (this.rotation + rotation) % 4;
-    let { width, height } = this.fit(this.image, this.rotation % 2 ? {
-      width: this.canvas.height,
-      height: this.canvas.width
-    } : null);
-    this.margins.left = (this.canvas.width - width) / 2;
-    this.margins.top = (this.canvas.height - height) / 2;
-    this.context.reset();
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.translate(this.canvas.width / 2, cropper.canvas.height / 2);
-    this.context.rotate(90 * this.rotation * Math.PI / 180);
-    this.context.translate(-this.canvas.width / 2, -cropper.canvas.height / 2);
-    this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
+    rotation %= 4;
+    if (rotation % 2) {
+      this.mirror.width = this.image.height;
+      this.mirror.height = this.image.width;
+    }
+    else {
+      this.mirror.width = this.image.width;
+      this.mirror.height = this.image.height;
+    }
+    this.mirrorContext.translate(this.mirror.width / 2, this.mirror.height / 2);
+    this.mirrorContext.rotate(90 * rotation * Math.PI / 180);
+    this.mirrorContext.translate(-this.image.width / 2, -this.image.height / 2);
+    this.mirrorContext.drawImage(this.image, 0, 0);
+    this.image = new Image();
+    this.image.src = this.mirror.toDataURL('image/png', 1);
+    this.image.onload = this.loadImage;
   }
   this.resetSelector = () => {
     this.selector.style.width = this.canvas.width / 2;
@@ -212,8 +215,6 @@ function Cropper(options) {
     this.selector.style.top = this.canvas.offsetTop + this.canvas.height / 4;
   }
   this.reset = () => {
-    this.rotation = 0;
-    this.context.reset();
     this.image.onload = this.loadImage;
     this.image.src = options.canvas.image;
   }
