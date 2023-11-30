@@ -1,4 +1,5 @@
 function Cropper(options) {
+  console.log('cropper', options);
   this.selector = document.getElementById(options.selector.id);
   this.canvas = document.getElementById(options.canvas.id);
   this.handles = {
@@ -14,6 +15,7 @@ function Cropper(options) {
   this.context = this.canvas.getContext('2d');
   this.mirror = document.createElement('canvas');
   this.mirrorContext = this.mirror.getContext('2d');
+  this.pointerOffset = {};
   const handleMove = () => {
     const onPointerDown = (event) => {
       this.pointerOffset.x = event.clientX - this.selector.offsetLeft;
@@ -36,8 +38,8 @@ function Cropper(options) {
       if (y > this.canvas.offsetTop + this.canvas.offsetHeight - this.selector.offsetHeight) {
         y = this.canvas.offsetTop + this.canvas.offsetHeight - this.selector.offsetHeight;
       }
-      this.selector.style.left = x;
-      this.selector.style.top = y;
+      this.selector.style.left = x + 'px';
+      this.selector.style.top = y + 'px';
     }
     const onPointerUp = (event) => {
       window.onpointerup = undefined;
@@ -78,10 +80,10 @@ function Cropper(options) {
           }
           width = xSpan - left;
           height = ySpan - top;
-          this.selector.style.left = left;
-          this.selector.style.top = top;
-          this.selector.style.width = width;
-          this.selector.style.height = height;
+          this.selector.style.left = left + 'px';
+          this.selector.style.top = top + 'px';
+          this.selector.style.width = width + 'px';
+          this.selector.style.height = height + 'px';
           break;
         case 'br':
           const maxWidth = this.canvas.offsetWidth - this.selector.offsetLeft;
@@ -100,8 +102,8 @@ function Cropper(options) {
           if (this.selector.offsetTop + height > this.canvas.offsetHeight) {
             height = maxHeight;
           }
-          this.selector.style.width = width;
-          this.selector.style.height = height;
+          this.selector.style.width = width + 'px';
+          this.selector.style.height = height + 'px';
           break;
       }
     }
@@ -144,13 +146,6 @@ function Cropper(options) {
     this.resetSelector();
     this.image.onload = undefined;
   }
-  this.image = new Image();
-  this.image.onload = this.loadImage;
-  this.pointerOffset = {};
-  this.image.src = options.canvas.image;
-  handleMove();
-  handleResize('tl');
-  handleResize('br');
   this.crop = () => {
     const maxSelectedWidth = this.canvas.width - this.margins.left * 2;
     const maxSelectedHeight = this.canvas.height - this.margins.top * 2;
@@ -214,7 +209,21 @@ function Cropper(options) {
     this.selector.style.top = this.canvas.offsetTop + this.canvas.height / 4;
   }
   this.reset = () => {
-    this.image.onload = this.loadImage;
-    this.image.src = options.canvas.image;
+    if (options.canvas.image) {
+      this.image = options.canvas.image
+      this.loadImage();
+    }
+    else if (options.canvas.imgSrc) {
+      this.image = new Image();
+      this.image.onload = this.loadImage;
+      this.image.src = options.canvas.imgSrc;
+    }
+    else {
+      console.log('no image provided');
+    }
   }
+  this.reset();
+  handleMove();
+  handleResize('tl');
+  handleResize('br');
 }

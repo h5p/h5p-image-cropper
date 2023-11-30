@@ -5,7 +5,7 @@ window.addEventListener('load', (event) => {
       id: 'canvas',
       width: 800,
       height: 400,
-      image: 'sample.jpg'
+      imgSrc: 'sample.jpg'
     },
     selector: {
       id: 'selector',
