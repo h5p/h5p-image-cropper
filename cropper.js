@@ -17,6 +17,8 @@ function Cropper(options) {
   this.pointerOffset = {};
   const handleMove = () => {
     const onPointerDown = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       this.pointerOffset.x = event.clientX - this.selector.offsetLeft;
       this.pointerOffset.y = event.clientY - this.selector.offsetTop;
       window.onpointerup = onPointerUp;
@@ -114,6 +116,15 @@ function Cropper(options) {
     }
     this.handles[type].onpointerdown = onPointerDown;
   }
+  const handleBlob = (blob) => {
+    const url = URL.createObjectURL(blob);
+    this.image.onload = () => {
+      URL.revokeObjectURL(url);
+      loadImage();
+    }
+    this.image = new Image();
+    this.image.src = url;
+  }
   this.fit = (image, canvas) => {
     if (!canvas) {
       canvas = this.canvas;
@@ -142,8 +153,11 @@ function Cropper(options) {
     const { width, height } = this.fit(this.image);
     this.margins.left = (this.canvas.width - width) / 2;
     this.margins.top = (this.canvas.height - height) / 2;
+    this.mirror.width = this.image.width;
+    this.mirror.height = this.image.height;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
+    this.mirrorContext.drawImage(this.image, 0, 0);
     this.resetSelector();
     this.image.onload = undefined;
   }
@@ -182,7 +196,7 @@ function Cropper(options) {
     this.mirror.height = height;
     this.mirrorContext.drawImage(this.image, sx, sy, sw, sh, 0, 0, width, height);
     this.image = new Image();
-    this.image.src = this.mirror.toDataURL('image/png', 1);
+    this.image.src = this.mirror.toBlob(handleBlob, 'image/png', 1);
     this.image.onload = this.loadImage;
   }
   this.rotate = (rotation) => {
@@ -200,7 +214,7 @@ function Cropper(options) {
     this.mirrorContext.translate(-this.image.width / 2, -this.image.height / 2);
     this.mirrorContext.drawImage(this.image, 0, 0);
     this.image = new Image();
-    this.image.src = this.mirror.toDataURL('image/png', 1);
+    this.image.src = this.mirror.toBlob(handleBlob, 'image/png', 1);
     this.image.onload = this.loadImage;
   }
   this.resetSelector = () => {
