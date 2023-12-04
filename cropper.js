@@ -1,5 +1,4 @@
 function Cropper(options) {
-  console.log('cropper', options);
   this.selector = document.getElementById(options.selector.id);
   this.canvas = document.getElementById(options.canvas.id);
   this.handles = {
@@ -41,7 +40,7 @@ function Cropper(options) {
       this.selector.style.left = x + 'px';
       this.selector.style.top = y + 'px';
     }
-    const onPointerUp = (event) => {
+    const onPointerUp = () => {
       window.onpointerup = undefined;
       window.onpointermove = undefined;
     }
@@ -60,12 +59,14 @@ function Cropper(options) {
     const onPointerMove = (event) => {
       let width;
       let height;
+      const parentBounds = this.canvas.parentElement.getBoundingClientRect();
+      const selectorBounds = this.selector.getBoundingClientRect();
       switch (type) {
         case 'tl':
           const xSpan = this.selector.offsetLeft + this.selector.offsetWidth;
           const ySpan = this.selector.offsetTop + this.selector.offsetHeight;
-          let left = event.pageX - this.canvas.parentElement.offsetLeft;
-          let top = event.pageY - this.canvas.parentElement.offsetTop;
+          let left = event.pageX - parentBounds.left;
+          let top = event.pageY - parentBounds.top;
           if (left < 0) {
             left = 0;
           }
@@ -88,8 +89,8 @@ function Cropper(options) {
         case 'br':
           const maxWidth = this.canvas.offsetWidth - this.selector.offsetLeft;
           const maxHeight = this.canvas.offsetHeight - this.selector.offsetTop;
-          width = event.pageX - this.canvas.parentElement.offsetLeft - this.selector.offsetLeft;
-          height = event.pageY - this.canvas.parentElement.offsetTop - this.selector.offsetTop;
+          width = event.pageX - parentBounds.left - this.selector.offsetLeft;
+          height = event.pageY - parentBounds.top - this.selector.offsetTop;
           if (width < 0) {
             width = 0;
           }
@@ -107,7 +108,7 @@ function Cropper(options) {
           break;
       }
     }
-    const onPointerUp = (event) => {
+    const onPointerUp = () => {
       window.onpointerup = undefined;
       window.onpointermove = undefined;
     }
@@ -210,8 +211,8 @@ function Cropper(options) {
   }
   this.reset = () => {
     if (options.canvas.image) {
-      this.image = options.canvas.image
-      this.loadImage();
+      this.image = options.canvas.image;
+      this.loadImage(options.canvas.image);
     }
     else if (options.canvas.imgSrc) {
       this.image = new Image();
