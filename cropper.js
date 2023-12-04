@@ -116,6 +116,15 @@ function Cropper(options) {
     }
     this.handles[type].onpointerdown = onPointerDown;
   }
+  const handleBlob = (blob) => {
+    const url = URL.createObjectURL(blob);
+    this.image = new Image();
+    this.image.onload = () => {
+      URL.revokeObjectURL(url);
+      this.loadImage();
+    }
+    this.image.src = url;
+  }
   this.fit = (image, canvas) => {
     if (!canvas) {
       canvas = this.canvas;
@@ -184,9 +193,7 @@ function Cropper(options) {
     this.mirror.width = width;
     this.mirror.height = height;
     this.mirrorContext.drawImage(this.image, sx, sy, sw, sh, 0, 0, width, height);
-    this.image = new Image();
-    this.image.src = this.mirror.toDataURL('image/png', 1);
-    this.image.onload = this.loadImage;
+    this.mirror.toBlob(handleBlob, 'image/png', 1);
   }
   this.rotate = (rotation) => {
     rotation %= 4;
@@ -202,9 +209,7 @@ function Cropper(options) {
     this.mirrorContext.rotate(90 * rotation * Math.PI / 180);
     this.mirrorContext.translate(-this.image.width / 2, -this.image.height / 2);
     this.mirrorContext.drawImage(this.image, 0, 0);
-    this.image = new Image();
-    this.image.src = this.mirror.toDataURL('image/png', 1);
-    this.image.onload = this.loadImage;
+    this.mirror.toBlob(handleBlob, 'image/png', 1);
   }
   this.resetSelector = () => {
     this.selector.style.width = this.canvas.width / 2;
