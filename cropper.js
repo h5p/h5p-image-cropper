@@ -212,7 +212,7 @@ function Cropper(options) {
   this.reset = () => {
     if (options.canvas.image) {
       this.image = options.canvas.image;
-      this.loadImage(options.canvas.image);
+      this.loadImage();
     }
     else if (options.canvas.imgSrc) {
       this.image = new Image();
