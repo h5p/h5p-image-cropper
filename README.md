@@ -1,4 +1,4 @@
-Simple cropping tool.  
+Simple image cropping tool.  
 Requires static file server to load example index.html in a browser.  
 Use `cropper.crop()` in browser console to trigger crop action.  
 Use `cropper.rotate(1)` in browser console to rotate the current image by 90 degrees clockwise. Uses integer multiples of 90 degrees for rotation amount and direction. Positive numbers for clockwise & negative numbers for counter-clockwise rotation.  
