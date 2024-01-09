@@ -1,18 +1,24 @@
 let cropper;
 window.addEventListener('load', (event) => {
-  cropper = new Cropper({
+  this.cropper = new Cropper({
+    uniqueId:' somethingUnique',
+    container: document.getElementById('cropper-container'),
     canvas: {
-      id: 'canvas',
       width: 800,
       height: 400,
-      imgSrc: 'sample.jpg'
+      background: '#2f323a',
+      imgSrc: 'sample.jpg' // use the alternative "image" attribute to directly point to an image object
     },
     selector: {
-      id: 'selector',
-      handles: {
-        tl: 'tlHandle',
-        br: 'brHandle'
-      }
+      min: {
+        width: 50,
+        height: 50
+      },
+      mask: true
+    },
+    labels: {
+      confirmCrop: 'Confirm Crop',
+      cancelCrop: 'Cancel Crop'
     }
   });
 });
