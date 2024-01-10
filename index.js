@@ -1,7 +1,7 @@
 let cropper;
 window.addEventListener('load', (event) => {
   this.cropper = new Cropper({
-    uniqueId:'somethingUnique',
+    uniqueId: 'somethingUnique',
     container: document.getElementById('cropper-container'),
     canvas: {
       width: 800,
