@@ -4,9 +4,26 @@
 function Cropper(options) {
   this.options = options;
   this.container = options.container;
+
+  /**
+   * Generic pointerup event handler.
+   *
+   * @param {string} handle String name for selector handle not to be hidden.
+   */
+  const onPointerUp = (handle) => {
+    return (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      window.onpointerup = undefined;
+      window.onpointermove = undefined;
+      this.toggleHandles(true, handle);
+    }
+  }
+
   /**
    * Set of pointer event handler functions for moving the selector.
    */
+
   const handleMove = () => {
     const onPointerDown = (event) => {
       event.preventDefault();
@@ -16,9 +33,10 @@ function Cropper(options) {
       this.pointerOffset.xSpan = this.selector.offsetLeft + this.selector.offsetWidth;
       this.pointerOffset.ySpan = this.selector.offsetTop + this.selector.offsetHeight;
       this.toggleHandles(false);
-      window.onpointerup = onPointerUp;
+      window.onpointerup = onPointerUp();
       window.onpointermove = onPointerMove;
     }
+
     const onPointerMove = (event) => {
       let x = event.clientX - this.pointerOffset.x;
       let y = event.clientY - this.pointerOffset.y;
@@ -40,33 +58,31 @@ function Cropper(options) {
         this.updateMask();
       }
     }
-    const onPointerUp = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      window.onpointerup = undefined;
-      window.onpointermove = undefined;
-      this.toggleHandles(true);
-    }
+
     this.selector.onpointerdown = onPointerDown;
   }
+
   /**
    * Set of pointer event handling functions for resizing the selector.
    *
-   * @param {string} type String containing characters that denote the resizing handle location.
+   * @param {string} type String containing labels that denote the resizing handle location.
    */
   const handleResize = (type) => {
     if (!this.handles[type]) {
       return;
     }
+    const types = type.split('_');
+
     const onPointerDown = (event) => {
       event.preventDefault();
       event.stopPropagation();
       this.pointerOffset.xSpan = this.selector.offsetLeft + this.selector.offsetWidth - options.selector.min.width;
       this.pointerOffset.ySpan = this.selector.offsetTop + this.selector.offsetHeight - options.selector.min.height;
       this.toggleHandles(false, type);
-      window.onpointerup = onPointerUp;
+      window.onpointerup = onPointerUp(type);
       window.onpointermove = onPointerMove;
     }
+
     /**
      * Generic selector resizing handler.
      *
@@ -136,32 +152,28 @@ function Cropper(options) {
         this.selector.style.height = height + 'px';
       }
     }
+
     const onPointerMove = (event) => {
       event.preventDefault();
       event.stopPropagation();
       const map = {
-        t: false,
-        l: false,
-        b: false,
-        r: false
+        top: false,
+        left: false,
+        bottom: false,
+        right: false
       }
-      for (let item of type) {
+      for (let item of types) {
         map[item] = true;
       }
-      handleAll(map.t, map.l, map.b, map.r);
+      handleAll(map.top, map.left, map.bottom, map.right);
       if (options.selector.mask) {
         this.updateMask();
       }
     }
-    const onPointerUp = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      window.onpointerup = undefined;
-      window.onpointermove = undefined;
-      this.toggleHandles(true, type);
-    }
+
     this.handles[type].onpointerdown = onPointerDown;
   }
+
   /**
    * Callback for canvas.context.toBlob image retrieval.
    *
@@ -176,6 +188,7 @@ function Cropper(options) {
     }
     this.image.src = url;
   }
+
   /**
    * Shows/hides mask around selector.
    *
@@ -186,35 +199,42 @@ function Cropper(options) {
       this.masks[item].style.display = on ? 'block' : 'none';
     }
   }
+
   /**
    * Updates the size & position of the 4 mask areas.
    */
   this.updateMask = () => {
+    let item;
     if (this.masks.top) {
-      this.masks.top.style.width = this.selector.offsetWidth + 'px';
-      this.masks.top.style.height = this.selector.offsetTop + 'px';
-      this.masks.top.style.top = 0;
-      this.masks.top.style.left = this.selector.offsetLeft + 'px';
+      item = this.masks.top;
+      item.style.width = this.selector.offsetWidth + 'px';
+      item.style.height = this.selector.offsetTop + 'px';
+      item.style.top = 0;
+      item.style.left = this.selector.offsetLeft + 'px';
     }
     if (this.masks.right) {
-      this.masks.right.style.width = this.canvas.width - (this.selector.offsetLeft + this.selector.offsetWidth) + 'px';
-      this.masks.right.style.height = this.canvas.height + 'px';
-      this.masks.right.style.right = 0;
-      this.masks.right.style.top = 0;
+      item = this.masks.right;
+      item.style.width = this.canvas.width - (this.selector.offsetLeft + this.selector.offsetWidth) + 'px';
+      item.style.height = this.canvas.height + 'px';
+      item.style.right = 0;
+      item.style.top = 0;
     }
     if (this.masks.bottom) {
-      this.masks.bottom.style.width = this.selector.offsetWidth + 'px';
-      this.masks.bottom.style.height = this.canvas.height - (this.selector.offsetTop + this.selector.offsetHeight) + 'px';
-      this.masks.bottom.style.bottom = 0;
-      this.masks.bottom.style.left = this.selector.offsetLeft + 'px';
+      item = this.masks.bottom;
+      item.style.width = this.selector.offsetWidth + 'px';
+      item.style.height = this.canvas.height - (this.selector.offsetTop + this.selector.offsetHeight) + 'px';
+      item.style.bottom = 0;
+      item.style.left = this.selector.offsetLeft + 'px';
     }
     if (this.masks.left) {
-      this.masks.left.style.width = this.selector.offsetLeft + 'px';
-      this.masks.left.style.height = this.canvas.height + 'px';
-      this.masks.left.style.left = 0;
-      this.masks.left.style.top = 0;
+      item = this.masks.left;
+      item.style.width = this.selector.offsetLeft + 'px';
+      item.style.height = this.canvas.height + 'px';
+      item.style.left = 0;
+      item.style.top = 0;
     }
   }
+
   /**
    * Shows/hides selector handles.
    *
@@ -228,6 +248,7 @@ function Cropper(options) {
       this.handles[item].style.opacity = on ? 1 : 0;
     }
   }
+
   /**
    * Shows/hides selector.
    *
@@ -240,6 +261,7 @@ function Cropper(options) {
       this.toggleMask(on);
     }
   }
+
   /**
    * Shows one buttons section and hides the other.
    *
@@ -250,6 +272,7 @@ function Cropper(options) {
       this.sections[item].style.display = section === item ? 'inline-block' : 'none';
     }
   }
+
   /**
    * Computes width & height for an image so that it fits within the canvvas.
    *
@@ -280,6 +303,7 @@ function Cropper(options) {
     }
     return { width, height };
   }
+
   /**
    * Draws image within canvas.
    */
@@ -293,6 +317,7 @@ function Cropper(options) {
     this.context.drawImage(this.image, this.margins.left, this.margins.top, width, height);
     this.image.onload = undefined;
   }
+
   /**
    * Draws raw image in mirror canvas. Mirror is used for output.
    */
@@ -301,6 +326,7 @@ function Cropper(options) {
     this.mirror.height = this.image.height;
     this.mirrorContext.drawImage(this.image, 0, 0);
   }
+
   /**
    * Crops image based on selector size & position relative to image location within canvas.
    * The output is generated from the mirror canvas based on scaled selector dimensions.
@@ -327,16 +353,17 @@ function Cropper(options) {
       selectedHeight = maxSelectedHeight - selectedY;
     }
     const ICRatio = this.image.width / (this.canvas.width - this.margins.left * 2);
-    let sx = ICRatio * selectedX;
-    let sy = ICRatio * selectedY;
-    let sw = ICRatio * selectedWidth;
-    let sh = ICRatio * selectedHeight;
-    const { width, height } = this.fit({ width: sw, height: sh });
+    selectedX = ICRatio * selectedX;
+    selectedY = ICRatio * selectedY;
+    selectedWidth = ICRatio * selectedWidth;
+    selectedHeight = ICRatio * selectedHeight;
+    const { width, height } = this.fit({ width: selectedWidth, height: selectedHeight });
     this.mirror.width = width;
     this.mirror.height = height;
-    this.mirrorContext.drawImage(this.image, sx, sy, sw, sh, 0, 0, width, height);
+    this.mirrorContext.drawImage(this.image, selectedX, selectedY, selectedWidth, selectedHeight, 0, 0, width, height);
     this.mirror.toBlob(handleBlob, 'image/png', 1);
   }
+
   /**
    * Rotates image in increments of 90 degrees.
    *
@@ -358,6 +385,7 @@ function Cropper(options) {
     this.mirrorContext.drawImage(this.image, 0, 0);
     this.mirror.toBlob(handleBlob, 'image/png', 1);
   }
+
   /**
    * Resets selector size & position based on optional initial dimensions.
    * If no initial data is provided selector will be centered within the canvas.
@@ -368,6 +396,7 @@ function Cropper(options) {
     this.selector.style.left = (options.selector.initial?.left || this.canvas.offsetLeft + this.canvas.width / 4) + 'px';
     this.selector.style.top = (options.selector.initial?.top || this.canvas.offsetTop + this.canvas.height / 4) + 'px';
   }
+
   /**
    * Reload input image and reset selector.
    */
@@ -386,10 +415,11 @@ function Cropper(options) {
       this.image.src = options.canvas.imgSrc;
     }
     else {
-      console.log('no image provided');
+      console.warn('cropper:no_image_provided');
     }
     this.resetSelector();
   }
+
   /**
    * Runs document.getElementById and builds a tree structure of elements based on the tree structure of the provided list.
    *
@@ -414,8 +444,9 @@ function Cropper(options) {
       }
     }
   }
+
   /**
-   * Creates cropper instance data structure injects HTML in container and starts image loading.
+   * Creates cropper instance data structure, injects HTML in container and starts image loading.
    */
   this.initialize = () => {
     this.ids = {
@@ -433,14 +464,14 @@ function Cropper(options) {
         cancelCrop: 'cropper-button-cancel'
       },
       handles: {
-        tl: 'cropper-handle-tl',
-        t: 'cropper-handle-t',
-        tr: 'cropper-handle-tr',
-        l: 'cropper-handle-l',
-        r: 'cropper-handle-r',
-        bl: 'cropper-handle-bl',
-        b: 'cropper-handle-b',
-        br: 'cropper-handle-br'
+        top_left: 'cropper-handle-top-left',
+        top: 'cropper-handle-top',
+        top_right: 'cropper-handle-top-right',
+        left: 'cropper-handle-left',
+        right: 'cropper-handle-right',
+        bottom_left: 'cropper-handle-bottom-left',
+        bottom: 'cropper-handle-bottom',
+        bottom_right: 'cropper-handle-bottom-right'
       },
       masks: {
         top: 'cropper-mask-top',
@@ -486,14 +517,14 @@ function Cropper(options) {
           <div class="cropper-border-center-left"></div><div class="cropper-border-center"></div><div class="cropper-border-center-right"></div>
           <div class="cropper-border-bottom-left"></div><div class="cropper-border-bottom"></div><div class="cropper-border-bottom-right"></div>
         </div>
-        <div id="${this.ids.handles.tl}" class="cropper-handle cropper-top-left"></div>
-        <div id="${this.ids.handles.t}" class="cropper-handle cropper-top"></div>
-        <div id="${this.ids.handles.tr}" class="cropper-handle cropper-top-right"></div>
-        <div id="${this.ids.handles.l}" class="cropper-handle cropper-left"></div>
-        <div id="${this.ids.handles.r}" class="cropper-handle cropper-right"></div>
-        <div id="${this.ids.handles.bl}" class="cropper-handle cropper-bottom-left"></div>
-        <div id="${this.ids.handles.b}" class="cropper-handle cropper-bottom"></div>
-        <div id="${this.ids.handles.br}" class="cropper-handle cropper-bottom-right"></div>
+        <div id="${this.ids.handles.top_left}" class="cropper-handle cropper-top-left"></div>
+        <div id="${this.ids.handles.top}" class="cropper-handle cropper-top"></div>
+        <div id="${this.ids.handles.top_right}" class="cropper-handle cropper-top-right"></div>
+        <div id="${this.ids.handles.left}" class="cropper-handle cropper-left"></div>
+        <div id="${this.ids.handles.right}" class="cropper-handle cropper-right"></div>
+        <div id="${this.ids.handles.bottom_left}" class="cropper-handle cropper-bottom-left"></div>
+        <div id="${this.ids.handles.bottom}" class="cropper-handle cropper-bottom"></div>
+        <div id="${this.ids.handles.bottom_right}" class="cropper-handle cropper-bottom-right"></div>
       </div>
     </div>`;
     parseIds(this.ids, this);
@@ -523,6 +554,7 @@ function Cropper(options) {
       this.toggleSelector(false);
     }
   }
+
   this.initialize();
   this.reset();
   handleMove();
