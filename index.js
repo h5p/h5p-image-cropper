@@ -1,6 +1,6 @@
 let cropper;
 window.addEventListener('load', () => {
-  this.cropper = new Cropper({
+  cropper = new Cropper({
     uniqueId: 'somethingUnique',
     container: document.getElementById('cropper-container'),
     canvas: {
@@ -21,13 +21,13 @@ window.addEventListener('load', () => {
       cancelCrop: 'Cancel Crop'
     }
   });
-  this.resizeCropper = () => {
-    this.cropper.canvas.width = window.innerWidth;
-    this.cropper.canvas.height = window.innerHeight * 0.75;
-    this.cropper.loadImage();
-    this.cropper.loadMirror();
-    this.cropper.toggleSection('tools');
-    this.cropper.toggleSelector(false);
+  resizeCropper = () => {
+    cropper.canvas.width = window.innerWidth;
+    cropper.canvas.height = window.innerHeight * 0.75;
+    cropper.loadImage();
+    cropper.loadMirror();
+    cropper.toggleSection('tools');
+    cropper.toggleSelector(false);
   }
-  window.addEventListener('resize', this.resizeCropper);
+  window.addEventListener('resize', resizeCropper);
 });
