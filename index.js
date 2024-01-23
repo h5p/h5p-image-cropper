@@ -4,7 +4,7 @@ window.addEventListener('load', () => {
     uniqueId: 'somethingUnique',
     container: document.getElementById('cropper-container'),
     canvas: {
-      width: window.innerWidth,
+      width: window.innerWidth - 2,
       height: window.innerHeight * 0.75,
       background: '#2f323a',
       imgSrc: 'sample.jpg' // use the alternative "image" attribute to directly point to an image object
