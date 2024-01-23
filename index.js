@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
     }
   });
   resizeCropper = () => {
-    cropper.canvas.width = window.innerWidth;
+    cropper.canvas.width = window.innerWidth - 2;
     cropper.canvas.height = window.innerHeight * 0.75;
     cropper.loadImage();
     cropper.loadMirror();

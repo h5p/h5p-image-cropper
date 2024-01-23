@@ -64,6 +64,7 @@ body {
   position: relative;
   display: inline-block;
   border: 1px solid orange;
+  border-sizing: border-box;
 }
 .cropper-canvas-container canvas {
   display: block;
@@ -120,6 +121,7 @@ body {
   top: 0px;
   background-color: transparent;
   cursor: move;
+  border-sizing: border-box;
 }
 .cropper-selector .cropper-handle {
   position: absolute;

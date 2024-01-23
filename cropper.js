@@ -96,7 +96,7 @@ function Cropper(options) {
       const parentBounds = this.canvas.parentElement.getBoundingClientRect();
       if (top) {
         const ySpan = this.selector.offsetTop + this.selector.offsetHeight;
-        let top = event.pageY - parentBounds.top;
+        let top = Math.round(event.pageY) - parentBounds.top;
         if (top < 0) {
           top = 0;
         }
@@ -108,7 +108,7 @@ function Cropper(options) {
       }
       if (left) {
         const xSpan = this.selector.offsetLeft + this.selector.offsetWidth;
-        let left = event.pageX - parentBounds.left;
+        let left = Math.round(event.pageX) - parentBounds.left;
         if (left < 0) {
           left = 0;
         }
@@ -120,7 +120,7 @@ function Cropper(options) {
       }
       if (bottom) {
         const maxHeight = this.canvas.offsetHeight - this.selector.offsetTop;
-        height = event.pageY - parentBounds.top - this.selector.offsetTop;
+        height = Math.round(event.pageY) - parentBounds.top - this.selector.offsetTop;
         if (height < 0) {
           height = 0;
         }
@@ -130,7 +130,7 @@ function Cropper(options) {
       }
       if (right) {
         const maxWidth = this.canvas.offsetWidth - this.selector.offsetLeft;
-        width = event.pageX - parentBounds.left - this.selector.offsetLeft;
+        width = Math.round(event.pageX) - parentBounds.left - this.selector.offsetLeft;
         if (width < 0) {
           width = 0;
         }
@@ -294,14 +294,19 @@ function Cropper(options) {
    *
    * @param {Blob} blob Raw image data.
    */
-  const handleBlob = (blob) => {
-    const url = URL.createObjectURL(blob);
-    this.image = new Image();
-    this.image.onload = () => {
-      URL.revokeObjectURL(url);
-      this.loadImage();
+  const handleBlob = (callback) => {
+    return (blob) => {
+      const url = URL.createObjectURL(blob);
+      this.image = new Image();
+      this.image.onload = () => {
+        URL.revokeObjectURL(url);
+        this.loadImage();
+        if (callback) {
+          callback();
+        }
+      }
+      this.image.src = url;
     }
-    this.image.src = url;
   }
 
   /**
@@ -332,7 +337,7 @@ function Cropper(options) {
    * Crops image based on selector size & position relative to image location within canvas.
    * The output is generated from the mirror canvas based on scaled selector dimensions.
    */
-  this.crop = () => {
+  this.crop = (callback) => {
     let painted = this.fit(this.image);
     let selectedX = this.selector.offsetLeft - this.margins.left;
     let selectedY = this.selector.offsetTop - this.margins.top;
@@ -361,7 +366,7 @@ function Cropper(options) {
     this.mirror.width = width;
     this.mirror.height = height;
     this.mirrorContext.drawImage(this.image, selectedX, selectedY, selectedWidth, selectedHeight, 0, 0, width, height);
-    this.mirror.toBlob(handleBlob, 'image/png', 1);
+    this.mirror.toBlob(handleBlob(callback), 'image/png');
   }
 
   /**
@@ -369,7 +374,7 @@ function Cropper(options) {
    *
    * @param {integer} rotation Clockwise rotation for positive numbers. Counterclockwise for negative numbers.
    */
-  this.rotate = (rotation) => {
+  this.rotate = (rotation, callback) => {
     rotation %= 4;
     if (rotation % 2) {
       this.mirror.width = this.image.height;
@@ -383,7 +388,7 @@ function Cropper(options) {
     this.mirrorContext.rotate(90 * rotation * Math.PI / 180);
     this.mirrorContext.translate(-this.image.width / 2, -this.image.height / 2);
     this.mirrorContext.drawImage(this.image, 0, 0);
-    this.mirror.toBlob(handleBlob, 'image/png', 1);
+    this.mirror.toBlob(handleBlob(callback), 'image/png');
   }
 
   /**
