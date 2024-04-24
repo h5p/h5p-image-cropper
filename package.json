@@ -1,0 +1,17 @@
+{
+  "name": "h5p-image-cropper",
+  "version": "1.0.0",
+  "description": "Simple no dependency image cropping & rotation tool.",
+  "main": "cropper.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h5p/h5p-image-cropper.git"
+  },
+  "keywords": [
+    "image",
+    "cropping",
+    "rotation"
+  ],
+  "author": "Andrei Busuioc (https://github.com/devland)",
+  "license": "MIT"
+}

@@ -1,0 +1,28 @@
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #2f323a;
+}
+.cropper-canvas-container {
+  display: inline-block;
+  border: 1px solid orange;
+  border-sizing: border-box;
+}
+.cropper-canvas-container canvas {
+  border-sizing: border-box;
+}
+.cropper-rotate-left {
+  background-image: url("../images/rotate-left.svg");
+}
+.cropper-rotate-right {
+  background-image: url("../images/rotate-right.svg");
+}
+.cropper-crop {
+  background-image: url("../images/crop.svg");
+}
+.cropper-confirm {
+  background-image: url("../images/confirm.svg");
+}
+.cropper-cancel {
+  background-image: url("../images/cancel.svg");
+}
