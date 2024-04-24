@@ -1,8 +1,3 @@
-body {
-  padding: 0;
-  margin: 0;
-  background-color: #2f323a;
-}
 .cropper-inline {
   display: inline-block;
 }
@@ -13,6 +8,7 @@ body {
   background-color: #2f323a;
   text-align: center;
   padding: 35px;
+  user-select: none;
 }
 .cropper-button {
   position: relative;
@@ -40,31 +36,28 @@ body {
   background-repeat: no-repeat;
 }
 .cropper-rotate-left {
-  background-image: url("images/rotate-left.svg");
+  background-image: url("../images/cropper/rotate-left.svg");
 }
 .cropper-rotate-right {
-  background-image: url("images/rotate-right.svg");
+  background-image: url("../images/cropper/rotate-right.svg");
 }
 .cropper-crop {
-  background-image: url("images/crop.svg");
+  background-image: url("../images/cropper/crop.svg");
 }
 .cropper-confirm {
-  background-image: url("images/confirm.svg");
+  background-image: url("../images/cropper/confirm.svg");
 }
 .cropper-confirm-text {
   color: #a0e9a3;
 }
 .cropper-cancel {
-  background-image: url("images/cancel.svg");
+  background-image: url("../images/cropper/cancel.svg");
 }
 .cropper-cancel-text {
   color: #fcaaaa;
 }
 .cropper-canvas-container {
   position: relative;
-  display: inline-block;
-  border: 1px solid orange;
-  border-sizing: border-box;
 }
 .cropper-canvas-container canvas {
   display: block;
@@ -121,7 +114,6 @@ body {
   top: 0px;
   background-color: transparent;
   cursor: move;
-  border-sizing: border-box;
 }
 .cropper-selector .cropper-handle {
   position: absolute;
@@ -191,4 +183,8 @@ body {
   top: -30px;
   border-radius: 5px;
   animation: none;
+  z-index: 999;
+}
+.h5p-editing-image-popup {
+  border: 1px solid #9e9e9e;
 }
